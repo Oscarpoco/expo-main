@@ -78,8 +78,11 @@ This system digitizes branch-level task tracking with a modern web interface, ro
 
 ```bash
 npm install
+# Copy .env.example → .env and add your Firebase web app config
 npm run dev
 ```
+
+Copy `.env.example` to `.env` and add your Firebase web app config (Firebase Console → Project settings → Your apps). Vite exposes only variables prefixed with `VITE_`.
 
 Open [http://localhost:5173](http://localhost:5173)
 
