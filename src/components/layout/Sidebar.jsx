@@ -13,7 +13,7 @@ import {
   FiMapPin,
   FiShield,
 } from 'react-icons/fi';
-import { useState } from 'react';
+import { useLayout } from '../../context/LayoutContext';
 import { useAuth } from '../../context/AuthContext';
 import { getBranchName, ROLE_LABELS } from '../../constants';
 import WwiseLogo from '../common/WwiseLogo';
@@ -56,7 +56,7 @@ function NavItem({ to, icon: Icon, label, end, onNavigate }) {
 export default function Sidebar() {
   const { userProfile, logout, canManageUsers } = useAuth();
   const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { sidebarOpen, closeSidebar, toggleSidebar } = useLayout();
 
   async function handleLogout() {
     await logout();
@@ -64,7 +64,7 @@ export default function Sidebar() {
   }
 
   function closeMobile() {
-    setMobileOpen(false);
+    closeSidebar();
   }
 
   const adminItems = canManageUsers
@@ -79,18 +79,14 @@ export default function Sidebar() {
       <button
         type="button"
         className="sidebar-toggle"
-        onClick={() => setMobileOpen(!mobileOpen)}
+        onClick={toggleSidebar}
         aria-label="Toggle menu"
-        aria-expanded={mobileOpen}
+        aria-expanded={sidebarOpen}
       >
-        {mobileOpen ? <FiX /> : <FiMenu />}
+        {sidebarOpen ? <FiX /> : <FiMenu />}
       </button>
 
-      <motion.aside
-        className={`sidebar ${mobileOpen ? 'open' : ''}`}
-        initial={{ x: -20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-      >
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
           <WwiseLogo variant="sidebar" />
         </div>
@@ -150,9 +146,9 @@ export default function Sidebar() {
             Sign Out
           </button>
         </div>
-      </motion.aside>
+      </aside>
 
-      {mobileOpen && (
+      {sidebarOpen && (
         <div className="sidebar-backdrop" onClick={closeMobile} aria-hidden="true" />
       )}
     </>
