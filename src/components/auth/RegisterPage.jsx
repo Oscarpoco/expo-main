@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiMail, FiLock, FiUser, FiMapPin, FiAlertCircle } from 'react-icons/fi';
+import { FiMail, FiLock, FiUser, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
-import { BRANCHES } from '../../constants';
 import WwiseLogo from '../common/WwiseLogo';
 import './AuthPages.css';
 
@@ -13,7 +12,6 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    branchId: BRANCHES[0].id,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,7 +36,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await register(form.email, form.password, form.displayName, form.branchId);
+      await register(form.email, form.password, form.displayName);
     } catch (err) {
       setError(getRegisterErrorMessage(err.code));
       setLoading(false);
@@ -56,7 +54,7 @@ export default function RegisterPage() {
         <div className="auth-header">
           <WwiseLogo variant="auth" />
           <h1>Create Account</h1>
-          <p>Join the Wwise digital task management platform</p>
+          <p>Start managing your personal tasks</p>
         </div>
 
         {error && (
@@ -67,39 +65,18 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="displayName">Full Name</label>
-              <div className="input-with-icon">
-                <FiUser />
-                <input
-                  id="displayName"
-                  type="text"
-                  value={form.displayName}
-                  onChange={(e) => updateField('displayName', e.target.value)}
-                  placeholder="John Doe"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="branch">Branch</label>
-              <div className="input-with-icon">
-                <FiMapPin />
-                <select
-                  id="branch"
-                  value={form.branchId}
-                  onChange={(e) => updateField('branchId', e.target.value)}
-                  required
-                >
-                  {BRANCHES.map((branch) => (
-                    <option key={branch.id} value={branch.id}>
-                      {branch.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div className="form-group">
+            <label htmlFor="displayName">Full Name</label>
+            <div className="input-with-icon">
+              <FiUser />
+              <input
+                id="displayName"
+                type="text"
+                value={form.displayName}
+                onChange={(e) => updateField('displayName', e.target.value)}
+                placeholder="John Doe"
+                required
+              />
             </div>
           </div>
 
@@ -112,7 +89,7 @@ export default function RegisterPage() {
                 type="email"
                 value={form.email}
                 onChange={(e) => updateField('email', e.target.value)}
-                placeholder="you@wwise.co.za"
+                placeholder="you@example.com"
                 required
               />
             </div>

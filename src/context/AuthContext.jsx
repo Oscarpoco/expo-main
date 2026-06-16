@@ -8,7 +8,6 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
-import { ROLES } from '../constants';
 
 const AuthContext = createContext(null);
 
@@ -36,14 +35,12 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  async function register(email, password, displayName, branchId, role = ROLES.EMPLOYEE) {
+  async function register(email, password, displayName) {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(credential.user, { displayName });
     const profile = {
       email,
       displayName,
-      branchId,
-      role,
       createdAt: new Date().toISOString(),
     };
     await setDoc(doc(db, 'users', credential.user.uid), profile);
@@ -60,11 +57,6 @@ export function AuthProvider({ children }) {
     setUserProfile(null);
   }
 
-  const isAdmin = userProfile?.role === ROLES.ADMIN;
-  const isBranchAdmin = userProfile?.role === ROLES.BRANCH_ADMIN;
-  const canManageUsers = isAdmin;
-  const canManageAllBranches = isAdmin;
-
   return (
     <AuthContext.Provider
       value={{
@@ -74,10 +66,6 @@ export function AuthProvider({ children }) {
         register,
         login,
         logout,
-        isAdmin,
-        isBranchAdmin,
-        canManageUsers,
-        canManageAllBranches,
       }}
     >
       {children}

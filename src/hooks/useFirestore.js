@@ -16,21 +16,23 @@ import { useAuth } from '../context/AuthContext';
 export function useTasks() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { userProfile, canManageAllBranches } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user) {
+      setTasks([]);
+      setLoading(false);
+      return;
+    }
+
     const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      if (canManageAllBranches) {
-        setTasks(data);
-      } else {
-        setTasks(data.filter((t) => t.branchId === userProfile?.branchId));
-      }
+      setTasks(data.filter((t) => t.createdBy === user.uid));
       setLoading(false);
     });
     return unsubscribe;
-  }, [userProfile?.branchId, canManageAllBranches]);
+  }, [user?.uid]);
 
   return { tasks, loading };
 }
@@ -96,9 +98,10 @@ export async function deleteTask(taskId, user, taskTitle) {
 export function useTaskHistory(taskId) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!taskId) return;
+    if (!taskId || !user) return;
     const q = query(
       collection(db, 'taskHistory'),
       orderBy('timestamp', 'desc')
@@ -106,12 +109,12 @@ export function useTaskHistory(taskId) {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs
         .map((d) => ({ id: d.id, ...d.data() }))
-        .filter((h) => h.taskId === taskId);
+        .filter((h) => h.taskId === taskId && h.changedBy === user.uid);
       setHistory(data);
       setLoading(false);
     });
     return unsubscribe;
-  }, [taskId]);
+  }, [taskId, user?.uid]);
 
   return { history, loading };
 }
@@ -119,21 +122,23 @@ export function useTaskHistory(taskId) {
 export function useProjects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { userProfile, canManageAllBranches } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user) {
+      setProjects([]);
+      setLoading(false);
+      return;
+    }
+
     const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      if (canManageAllBranches) {
-        setProjects(data);
-      } else {
-        setProjects(data.filter((p) => p.branchId === userProfile?.branchId));
-      }
+      setProjects(data.filter((p) => p.createdBy === user.uid));
       setLoading(false);
     });
     return unsubscribe;
-  }, [userProfile?.branchId, canManageAllBranches]);
+  }, [user?.uid]);
 
   return { projects, loading };
 }
@@ -147,42 +152,33 @@ export async function createProject(projectData, user) {
   });
 }
 
-export function useUsers() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setUsers(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, []);
-
-  return { users, loading };
-}
-
-export async function updateUserRole(userId, role) {
-  await updateDoc(doc(db, 'users', userId), { role });
-}
-
 export function useActivityFeed(maxItems = 25) {
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user) {
+      setActivity([]);
+      setLoading(false);
+      return;
+    }
+
     const q = query(
       collection(db, 'taskHistory'),
       orderBy('timestamp', 'desc'),
-      limit(maxItems)
+      limit(maxItems * 3)
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setActivity(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const data = snapshot.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .filter((a) => a.changedBy === user.uid)
+        .slice(0, maxItems);
+      setActivity(data);
       setLoading(false);
     });
     return unsubscribe;
-  }, [maxItems]);
+  }, [user?.uid, maxItems]);
 
   return { activity, loading };
 }

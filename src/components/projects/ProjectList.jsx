@@ -1,24 +1,21 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiPlus, FiFolder, FiMapPin, FiCalendar } from 'react-icons/fi';
+import { FiPlus, FiFolder, FiCalendar } from 'react-icons/fi';
 import { useProjects } from '../../hooks/useFirestore';
 import { useAuth } from '../../context/AuthContext';
-import { getBranchName } from '../../constants';
 import LoadingSpinner from '../common/LoadingSpinner';
 import EmptyState from '../common/EmptyState';
 import Modal from '../common/Modal';
 import { createProject } from '../../hooks/useFirestore';
-import { BRANCHES } from '../../constants';
 import './Projects.css';
 
 export default function ProjectList() {
   const { projects, loading } = useProjects();
-  const { user, canManageAllBranches, userProfile } = useAuth();
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: '',
     description: '',
-    branchId: userProfile?.branchId || BRANCHES[0].id,
   });
   const [saving, setSaving] = useState(false);
 
@@ -28,17 +25,13 @@ export default function ProjectList() {
     try {
       await createProject(form, user);
       setShowForm(false);
-      setForm({ name: '', description: '', branchId: userProfile?.branchId || BRANCHES[0].id });
+      setForm({ name: '', description: '' });
     } catch (err) {
       console.error(err);
     } finally {
       setSaving(false);
     }
   }
-
-  const availableBranches = canManageAllBranches
-    ? BRANCHES
-    : BRANCHES.filter((b) => b.id === userProfile?.branchId);
 
   if (loading) return <LoadingSpinner />;
 
@@ -51,7 +44,7 @@ export default function ProjectList() {
       >
         <div>
           <h1>Projects</h1>
-          <p>Organize tasks into projects across branches</p>
+          <p>Organize your tasks into projects</p>
         </div>
         <button type="button" className="btn btn-primary" onClick={() => setShowForm(true)}>
           <FiPlus />
@@ -86,7 +79,6 @@ export default function ProjectList() {
               <h3>{project.name}</h3>
               {project.description && <p>{project.description}</p>}
               <div className="project-footer">
-                <span><FiMapPin /> {getBranchName(project.branchId)}</span>
                 <span className="project-date">
                   <FiCalendar /> {new Date(project.createdAt).toLocaleDateString()}
                 </span>
@@ -119,20 +111,6 @@ export default function ProjectList() {
               placeholder="Project description..."
               rows={3}
             />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="projectBranch">Branch *</label>
-            <select
-              id="projectBranch"
-              value={form.branchId}
-              onChange={(e) => setForm({ ...form, branchId: e.target.value })}
-              required
-            >
-              {availableBranches.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
           </div>
 
           <div className="form-actions">

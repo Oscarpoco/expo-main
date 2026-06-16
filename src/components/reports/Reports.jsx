@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { FiDownload, FiBarChart2, FiFolder, FiTrendingUp, FiMapPin, FiPieChart } from 'react-icons/fi';
+import { FiDownload, FiBarChart2, FiFolder, FiTrendingUp, FiPieChart } from 'react-icons/fi';
 import { useTasks, useProjects } from '../../hooks/useFirestore';
-import { BRANCHES, TASK_STATUSES, getBranchName, getStatusLabel } from '../../constants';
+import { TASK_STATUSES, getStatusLabel } from '../../constants';
 import LoadingSpinner from '../common/LoadingSpinner';
 import './Reports.css';
 
@@ -11,32 +11,28 @@ export default function Reports() {
   const { projects, loading: projectsLoading } = useProjects();
 
   const reportData = useMemo(() => {
-    const byBranch = BRANCHES.map((branch) => ({
-      branch: branch.name,
-      total: tasks.filter((t) => t.branchId === branch.id).length,
-      pending: tasks.filter((t) => t.branchId === branch.id && t.status === 'pending').length,
-      inProgress: tasks.filter((t) => t.branchId === branch.id && t.status === 'in-progress').length,
-      completed: tasks.filter((t) => t.branchId === branch.id && t.status === 'completed').length,
-    }));
-
     const byStatus = TASK_STATUSES.map((status) => ({
       status: status.label,
       count: tasks.filter((t) => t.status === status.id).length,
       color: status.color,
     }));
 
+    const byPriority = ['high', 'medium', 'low'].map((priority) => ({
+      priority,
+      count: tasks.filter((t) => (t.priority || 'medium') === priority).length,
+    }));
+
     const completionRate = tasks.length > 0
       ? Math.round((tasks.filter((t) => t.status === 'completed').length / tasks.length) * 100)
       : 0;
 
-    return { byBranch, byStatus, completionRate, totalTasks: tasks.length, totalProjects: projects.length };
+    return { byStatus, byPriority, completionRate, totalTasks: tasks.length, totalProjects: projects.length };
   }, [tasks, projects]);
 
   function exportCSV() {
-    const headers = ['Title', 'Branch', 'Status', 'Priority', 'Created', 'Due Date'];
+    const headers = ['Title', 'Status', 'Priority', 'Created', 'Due Date'];
     const rows = tasks.map((t) => [
       t.title,
-      getBranchName(t.branchId),
       getStatusLabel(t.status),
       t.priority || '',
       t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '',
@@ -48,7 +44,7 @@ export default function Reports() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `wwise-tasks-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `tasks-report-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -64,7 +60,7 @@ export default function Reports() {
       >
         <div>
           <h1>Reports</h1>
-          <p>Task analytics and export across all branches</p>
+          <p>Analytics and export for your personal tasks</p>
         </div>
         <button type="button" className="btn btn-primary" onClick={exportCSV}>
           <FiDownload />
@@ -97,39 +93,6 @@ export default function Reports() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h2><FiMapPin /> Tasks by Branch</h2>
-          <div className="report-table-wrap">
-            <table className="report-table">
-              <thead>
-                <tr>
-                  <th>Branch</th>
-                  <th>Total</th>
-                  <th>Pending</th>
-                  <th>In Progress</th>
-                  <th>Completed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reportData.byBranch.map((row) => (
-                  <tr key={row.branch}>
-                    <td>{row.branch}</td>
-                    <td>{row.total}</td>
-                    <td>{row.pending}</td>
-                    <td>{row.inProgress}</td>
-                    <td>{row.completed}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.section>
-
-        <motion.section
-          className="report-section"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
           <h2><FiPieChart /> Tasks by Status</h2>
           <div className="status-bars">
             {reportData.byStatus.map((item) => (
@@ -153,6 +116,33 @@ export default function Reports() {
                 </div>
               </div>
             ))}
+          </div>
+        </motion.section>
+
+        <motion.section
+          className="report-section"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <h2><FiBarChart2 /> Tasks by Priority</h2>
+          <div className="report-table-wrap">
+            <table className="report-table">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reportData.byPriority.map((row) => (
+                  <tr key={row.priority}>
+                    <td style={{ textTransform: 'capitalize' }}>{row.priority}</td>
+                    <td>{row.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </motion.section>
       </div>

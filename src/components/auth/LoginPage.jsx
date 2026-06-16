@@ -36,7 +36,7 @@ export default function LoginPage() {
         <div className="auth-header">
           <WwiseLogo variant="auth" />
           <h1>Welcome Back</h1>
-          <p>Sign in to the Wwise Task Management System</p>
+          <p>Sign in to your personal task manager</p>
         </div>
 
         {error && (
@@ -56,7 +56,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@wwise.co.za"
+                placeholder="you@example.com"
                 required
               />
             </div>
@@ -94,16 +94,16 @@ export default function LoginPage() {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <WwiseLogo variant="panel" />
-        <h2>Digital Task Management</h2>
+        <h2>Stay Organized</h2>
         <p>
-          Replacing the physical book system with real-time collaboration across
-          Upington, Centurion, Cape Town, and Dubai.
+          A simple personal workspace to create, track, and complete your tasks
+          at your own pace.
         </p>
         <ul className="auth-features">
           <li>Real-time task updates</li>
-          <li>Multi-branch collaboration</li>
-          <li>Secure role-based access</li>
-          <li>Centralized project tracking</li>
+          <li>Kanban and grid views</li>
+          <li>Project grouping</li>
+          <li>Progress reports and export</li>
         </ul>
       </motion.div>
     </div>

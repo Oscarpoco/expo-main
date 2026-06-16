@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiPlus, FiSearch, FiGrid, FiColumns } from 'react-icons/fi';
-import { useTasks, useProjects, useUsers, updateTask } from '../../hooks/useFirestore';
+import { useTasks, useProjects, updateTask } from '../../hooks/useFirestore';
 import { useAuth } from '../../context/AuthContext';
 import { useTopBar } from '../../context/TopBarContext';
 import { filterTasksByDay } from '../../utils/dayFilter';
-import { BRANCHES, TASK_STATUSES } from '../../constants';
+import { TASK_STATUSES } from '../../constants';
 import LoadingSpinner from '../common/LoadingSpinner';
 import EmptyState from '../common/EmptyState';
 import TaskCard from './TaskCard';
@@ -18,8 +18,7 @@ import './KanbanBoard.css';
 export default function TaskList() {
   const { tasks, loading } = useTasks();
   const { projects } = useProjects();
-  const { users } = useUsers();
-  const { user, canManageAllBranches, userProfile } = useAuth();
+  const { user } = useAuth();
   const { selectedDay, todayIndex } = useTopBar();
   const location = useLocation();
 
@@ -27,7 +26,6 @@ export default function TaskList() {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [search, setSearch] = useState('');
-  const [branchFilter, setBranchFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 
@@ -43,7 +41,6 @@ export default function TaskList() {
         task.title.toLowerCase().includes(search.toLowerCase()) ||
         task.description?.toLowerCase().includes(search.toLowerCase());
 
-      const matchesBranch = branchFilter === 'all' || task.branchId === branchFilter;
       const matchesStatus = view === 'kanban' || statusFilter === 'all' || task.status === statusFilter;
 
       let matchesDate = true;
@@ -61,9 +58,9 @@ export default function TaskList() {
         }
       }
 
-      return matchesSearch && matchesBranch && matchesStatus && matchesDate;
+      return matchesSearch && matchesStatus && matchesDate;
     });
-  }, [dayFilteredTasks, search, branchFilter, statusFilter, dateFilter, view]);
+  }, [dayFilteredTasks, search, statusFilter, dateFilter, view]);
 
   function handleEdit(task) {
     setEditingTask(task);
@@ -105,7 +102,7 @@ export default function TaskList() {
       >
         <div>
           <h1>Tasks</h1>
-          <p>Manage and track tasks across all branches</p>
+          <p>Manage and track your personal tasks</p>
         </div>
         <div className="page-header-actions">
           <div className="view-toggle">
@@ -141,15 +138,6 @@ export default function TaskList() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-
-        {canManageAllBranches && (
-          <select value={branchFilter} onChange={(e) => setBranchFilter(e.target.value)}>
-            <option value="all">All Branches</option>
-            {BRANCHES.map((b) => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
-        )}
 
         {view === 'grid' && (
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
@@ -194,7 +182,6 @@ export default function TaskList() {
         <KanbanBoard
           tasks={filteredTasks}
           projects={projects}
-          users={users}
           onStatusChange={handleStatusChange}
           onEdit={handleEdit}
         />
@@ -205,7 +192,6 @@ export default function TaskList() {
               key={task.id}
               task={task}
               projects={projects}
-              users={users}
               onEdit={handleEdit}
               delay={index * 0.05}
             />
@@ -217,8 +203,6 @@ export default function TaskList() {
         <TaskForm
           task={editingTask}
           projects={projects}
-          users={users}
-          defaultBranch={userProfile?.branchId}
           onClose={handleCloseForm}
         />
       )}

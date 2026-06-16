@@ -14,7 +14,7 @@ const ACTION_ICONS = {
 
 const ACTION_COLORS = {
   created: '#10b981',
-  updated: '#ec4899',
+  updated: '#40916c',
   deleted: '#dc2626',
 };
 
@@ -68,7 +68,7 @@ export default function ActivityFeed({ selectedDay, todayIndex }) {
         <div className="activity-list">
           {filteredActivity.map((item, i) => {
             const Icon = ACTION_ICONS[item.action] || FiEdit2;
-            const color = ACTION_COLORS[item.action] || '#ec4899';
+            const color = ACTION_COLORS[item.action] || '#2d6a4f';
 
             return (
               <motion.div

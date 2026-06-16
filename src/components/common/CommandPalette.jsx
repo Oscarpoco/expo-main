@@ -7,13 +7,11 @@ import {
   FiCheckSquare,
   FiFolder,
   FiBarChart2,
-  FiUsers,
   FiPlus,
   FiCommand,
 } from 'react-icons/fi';
 import { useTasks } from '../../hooks/useFirestore';
-import { useAuth } from '../../context/AuthContext';
-import { getBranchName, getStatusLabel } from '../../constants';
+import { getStatusLabel } from '../../constants';
 import './CommandPalette.css';
 
 const PAGES = [
@@ -21,7 +19,6 @@ const PAGES = [
   { id: 'tasks', label: 'Tasks', icon: FiCheckSquare, path: '/tasks' },
   { id: 'projects', label: 'Projects', icon: FiFolder, path: '/projects' },
   { id: 'reports', label: 'Reports', icon: FiBarChart2, path: '/reports' },
-  { id: 'users', label: 'User Management', icon: FiUsers, path: '/users', adminOnly: true },
   { id: 'new-task', label: 'Create New Task', icon: FiPlus, path: '/tasks', action: 'new' },
 ];
 
@@ -30,20 +27,17 @@ export default function CommandPalette({ isOpen, onClose }) {
   const [selected, setSelected] = useState(0);
   const navigate = useNavigate();
   const { tasks } = useTasks();
-  const { canManageUsers } = useAuth();
-
-  const pages = PAGES.filter((p) => !p.adminOnly || canManageUsers);
 
   const results = useMemo(() => {
     const q = query.toLowerCase().trim();
     if (!q) {
       return [
-        ...pages.map((p) => ({ type: 'page', ...p })),
+        ...PAGES.map((p) => ({ type: 'page', ...p })),
         ...tasks.slice(0, 5).map((t) => ({ type: 'task', task: t })),
       ];
     }
 
-    const matchedPages = pages
+    const matchedPages = PAGES
       .filter((p) => p.label.toLowerCase().includes(q))
       .map((p) => ({ type: 'page', ...p }));
 
@@ -51,14 +45,13 @@ export default function CommandPalette({ isOpen, onClose }) {
       .filter(
         (t) =>
           t.title.toLowerCase().includes(q) ||
-          t.description?.toLowerCase().includes(q) ||
-          getBranchName(t.branchId).toLowerCase().includes(q)
+          t.description?.toLowerCase().includes(q)
       )
       .slice(0, 8)
       .map((t) => ({ type: 'task', task: t }));
 
     return [...matchedPages, ...matchedTasks];
-  }, [query, pages, tasks]);
+  }, [query, tasks]);
 
   const execute = useCallback(
     (item) => {
@@ -166,7 +159,7 @@ export default function CommandPalette({ isOpen, onClose }) {
                       <div className="cmd-item-text">
                         <span className="cmd-item-label">{task.title}</span>
                         <span className="cmd-item-sub">
-                          {getBranchName(task.branchId)} · {getStatusLabel(task.status)}
+                          {getStatusLabel(task.status)}
                         </span>
                       </div>
                       <span className="cmd-item-hint">Task</span>

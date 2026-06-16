@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiArrowRight, FiList, FiFolder, FiActivity, FiAlertCircle, FiCheckSquare, FiClock, FiCheckCircle, FiCalendar } from 'react-icons/fi';
 import StatCard from './StatCard';
-import BranchPulse from './BranchPulse';
 import ProgressRing from './ProgressRing';
 import ActivityFeed from './ActivityFeed';
 import CountUp from '../common/CountUp';
@@ -11,7 +10,7 @@ import { useTasks, useProjects } from '../../hooks/useFirestore';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useTopBar } from '../../context/TopBarContext';
-import { getBranchName, getStatusLabel, getStatusColor } from '../../constants';
+import { getStatusLabel, getStatusColor } from '../../constants';
 import {
   filterTasksByDay,
   filterItemsByCreatedDay,
@@ -80,9 +79,7 @@ export default function Dashboard() {
       >
         <div>
           <h1>Dashboard</h1>
-          <p>
-            Welcome back, {userProfile?.displayName} · {getBranchName(userProfile?.branchId)}
-          </p>
+          <p>Welcome back, {userProfile?.displayName}</p>
         </div>
         <Link to="/tasks" className="btn btn-primary">
           <FiPlus />
@@ -103,12 +100,10 @@ export default function Dashboard() {
         </motion.div>
       )}
 
-      <BranchPulse tasks={filteredTasks} />
-
       <div className="stats-grid">
-        <StatCard icon={FiCheckSquare} label="Total Tasks" value={stats.total} color="#ec4899" delay={0} />
+        <StatCard icon={FiCheckSquare} label="Total Tasks" value={stats.total} color="#2d6a4f" delay={0} />
         <StatCard icon={FiClock} label="Pending" value={stats.pending} color="#f59e0b" delay={0.1} />
-        <StatCard icon={FiActivity} label="In Progress" value={stats.inProgress} color="#db2777" delay={0.2} />
+        <StatCard icon={FiActivity} label="In Progress" value={stats.inProgress} color="#40916c" delay={0.2} />
         <StatCard icon={FiCheckCircle} label="Completed" value={stats.completed} color="#10b981" delay={0.3} />
       </div>
 
@@ -122,16 +117,16 @@ export default function Dashboard() {
           value={stats.completed}
           max={stats.total || 1}
           label="Complete"
-          color="#ec4899"
+          color="#2d6a4f"
         />
         <div className="progress-ring-details">
-          <h3>Team Progress</h3>
+          <h3>Your Progress</h3>
           <p>
             {stats.total === 0
               ? dayFilterActive
                 ? `No tasks scheduled for ${dayLabel}.`
-                : 'No tasks yet — create one to start tracking progress across branches.'
-              : `${stats.completed} of ${stats.total} tasks completed${dayFilterActive ? ` on ${dayLabel}` : ' company-wide'}.`}
+                : 'No tasks yet — create one to start tracking progress.'
+              : `${stats.completed} of ${stats.total} tasks completed${dayFilterActive ? ` on ${dayLabel}` : ''}.`}
             {overdue > 0 && ` ${overdue} task${overdue > 1 ? 's are' : ' is'} overdue.`}
           </p>
           <div className="progress-ring-stats">
@@ -195,9 +190,7 @@ export default function Dashboard() {
                       </span>
                       <div className="recent-item-info">
                         <span className="recent-title">{task.title}</span>
-                        <span className="recent-meta">
-                          {getBranchName(task.branchId)} · {getStatusLabel(task.status)}
-                        </span>
+                        <span className="recent-meta">{getStatusLabel(task.status)}</span>
                       </div>
                     </div>
                     <span className={`status-badge status-${task.status}`}>
@@ -236,7 +229,9 @@ export default function Dashboard() {
                 </span>
                 <div className="recent-item-info">
                   <span className="recent-title">{project.name}</span>
-                  <span className="recent-meta">{getBranchName(project.branchId)}</span>
+                  {project.description && (
+                    <span className="recent-meta">{project.description}</span>
+                  )}
                 </div>
               </div>
             </div>

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Modal from '../common/Modal';
 import { useAuth } from '../../context/AuthContext';
-import { BRANCHES, TASK_STATUSES, PRIORITIES } from '../../constants';
+import { TASK_STATUSES, PRIORITIES } from '../../constants';
 import { createTask, updateTask, useTaskHistory } from '../../hooks/useFirestore';
 import './TaskForm.css';
 
-export default function TaskForm({ task, projects, users, defaultBranch, onClose }) {
-  const { user, canManageAllBranches, userProfile } = useAuth();
+export default function TaskForm({ task, projects, onClose }) {
+  const { user } = useAuth();
   const isEditing = !!task;
   const { history } = useTaskHistory(task?.id);
 
@@ -15,8 +15,6 @@ export default function TaskForm({ task, projects, users, defaultBranch, onClose
     title: task?.title || '',
     description: task?.description || '',
     projectId: task?.projectId || '',
-    branchId: task?.branchId || defaultBranch || BRANCHES[0].id,
-    assignedTo: task?.assignedTo || '',
     status: task?.status || 'pending',
     priority: task?.priority || 'medium',
     dueDate: task?.dueDate || '',
@@ -37,7 +35,6 @@ export default function TaskForm({ task, projects, users, defaultBranch, onClose
       const data = {
         ...form,
         projectId: form.projectId || null,
-        assignedTo: form.assignedTo || null,
         dueDate: form.dueDate || null,
       };
 
@@ -54,11 +51,6 @@ export default function TaskForm({ task, projects, users, defaultBranch, onClose
       setLoading(false);
     }
   }
-
-  const branchUsers = users.filter((u) => u.branchId === form.branchId);
-  const availableBranches = canManageAllBranches
-    ? BRANCHES
-    : BRANCHES.filter((b) => b.id === userProfile?.branchId);
 
   return (
     <Modal
@@ -95,21 +87,6 @@ export default function TaskForm({ task, projects, users, defaultBranch, onClose
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="branch">Branch *</label>
-            <select
-              id="branch"
-              value={form.branchId}
-              onChange={(e) => updateField('branchId', e.target.value)}
-              required
-              disabled={!canManageAllBranches && !isEditing}
-            >
-              {availableBranches.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
             <label htmlFor="project">Project</label>
             <select
               id="project"
@@ -117,26 +94,8 @@ export default function TaskForm({ task, projects, users, defaultBranch, onClose
               onChange={(e) => updateField('projectId', e.target.value)}
             >
               <option value="">No project</option>
-              {projects
-                .filter((p) => p.branchId === form.branchId)
-                .map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="assignedTo">Assign To</label>
-            <select
-              id="assignedTo"
-              value={form.assignedTo}
-              onChange={(e) => updateField('assignedTo', e.target.value)}
-            >
-              <option value="">Unassigned</option>
-              {branchUsers.map((u) => (
-                <option key={u.id} value={u.id}>{u.displayName}</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>

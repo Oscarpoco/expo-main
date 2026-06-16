@@ -2,29 +2,29 @@
 @import './styles/mobile.css';
 
 :root {
-  /* Pink primary */
-  --primary: #ec4899;
-  --primary-dark: #db2777;
-  --primary-light: rgba(236, 72, 153, 0.1);
-  --accent: #f472b6;
-  --accent-dark: #ec4899;
+  /* Forest green primary */
+  --primary: #2d6a4f;
+  --primary-dark: #1b4332;
+  --primary-light: rgba(45, 106, 79, 0.1);
+  --accent: #40916c;
+  --accent-dark: #2d6a4f;
 
   /* Surfaces */
-  --bg: #faf5f8;
+  --bg: #f4f7f4;
   --surface: #ffffff;
-  --surface-hover: #fdf2f8;
-  --sidebar-bg: #18101a;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --surface-hover: #eef5ef;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: var(--border);
 
   /* Text */
-  --text-primary: #1a0a14;
-  --text-muted: #6b5a65;
+  --text-primary: #0f1f14;
+  --text-muted: #5a6b5e;
   --text-on-dark: rgba(255, 255, 255, 0.85);
   --text-on-dark-muted: rgba(255, 255, 255, 0.45);
 
   /* Borders & effects */
-  --border: #eadde6;
-  --border-strong: #ec4899;
+  --border: #d4e3d8;
+  --border-strong: #2d6a4f;
   --danger: #dc2626;
   --success: #059669;
   --warning: #d97706;
@@ -37,8 +37,8 @@
   --radius-avatar: 50%;
   --icon-circle-border: 2px dotted;
 
-  --shadow: 4px 4px 0 rgba(236, 72, 153, 0.1);
-  --shadow-lg: 8px 8px 0 rgba(236, 72, 153, 0.14);
+  --shadow: 4px 4px 0 rgba(45, 106, 79, 0.1);
+  --shadow-lg: 8px 8px 0 rgba(45, 106, 79, 0.14);
   --font: 'DM Sans', system-ui, -apple-system, sans-serif;
 }
 
@@ -97,18 +97,18 @@ h1, h2, h3, h4, h5, h6 {
 .btn-primary {
   background: var(--primary);
   color: white;
-  box-shadow: 4px 4px 0 rgba(236, 72, 153, 0.3);
+  box-shadow: 4px 4px 0 rgba(45, 106, 79, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-dark);
   transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 rgba(236, 72, 153, 0.35);
+  box-shadow: 5px 5px 0 rgba(45, 106, 79, 0.35);
 }
 
 .btn-primary:active:not(:disabled) {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 rgba(236, 72, 153, 0.2);
+  box-shadow: 2px 2px 0 rgba(45, 106, 79, 0.2);
 }
 
 .btn-secondary {
@@ -149,9 +149,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .status-in-progress {
-  background: rgba(236, 72, 153, 0.1);
-  color: #db2777;
-  border-color: rgba(236, 72, 153, 0.3);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border-color: rgba(45, 106, 79, 0.3);
 }
 
 .status-completed {

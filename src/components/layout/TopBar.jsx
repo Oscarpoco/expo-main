@@ -4,7 +4,6 @@ import { useActivityFeed } from '../../hooks/useFirestore';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useTopBar } from '../../context/TopBarContext';
-import { getBranchName } from '../../constants';
 import { getWeekDate, DAY_NAMES } from '../../utils/dayFilter';
 import './TopBar.css';
 
@@ -86,7 +85,7 @@ export default function TopBar({ onOpenCommand }) {
         <div className="top-bar-pill top-bar-user-wrap">
           <span
             className="top-bar-user-avatar"
-            title={`${userProfile?.displayName} · ${getBranchName(userProfile?.branchId)}`}
+            title={userProfile?.displayName}
           >
             {initial}
           </span>

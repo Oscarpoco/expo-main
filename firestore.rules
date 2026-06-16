@@ -6,45 +6,31 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
-    function isAdmin() {
-      return isAuthenticated() && getUserData().role == 'admin';
-    }
-
-    function isSameBranch(branchId) {
-      return isAuthenticated() && getUserData().branchId == branchId;
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
 
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isAdmin();
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
     }
 
     match /tasks/{taskId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated() && (
-        isAdmin() ||
-        getUserData().role == 'branch_admin' ||
-        resource.data.createdBy == request.auth.uid
-      );
+      allow read: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
     }
 
     match /projects/{projectId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated() && (
-        isAdmin() || resource.data.createdBy == request.auth.uid
-      );
+      allow read: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
     }
 
     match /taskHistory/{historyId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && resource.data.changedBy == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.changedBy == request.auth.uid;
     }
   }
 }

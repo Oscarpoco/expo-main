@@ -5,17 +5,13 @@ import {
   FiCheckSquare,
   FiFolder,
   FiBarChart2,
-  FiUsers,
   FiLogOut,
   FiMenu,
   FiX,
   FiPlus,
-  FiMapPin,
-  FiShield,
 } from 'react-icons/fi';
 import { useLayout } from '../../context/LayoutContext';
 import { useAuth } from '../../context/AuthContext';
-import { getBranchName, ROLE_LABELS } from '../../constants';
 import WwiseLogo from '../common/WwiseLogo';
 import './Sidebar.css';
 
@@ -54,7 +50,7 @@ function NavItem({ to, icon: Icon, label, end, onNavigate }) {
 }
 
 export default function Sidebar() {
-  const { userProfile, logout, canManageUsers } = useAuth();
+  const { userProfile, logout } = useAuth();
   const navigate = useNavigate();
   const { sidebarOpen, closeSidebar, toggleSidebar } = useLayout();
 
@@ -67,11 +63,6 @@ export default function Sidebar() {
     closeSidebar();
   }
 
-  const adminItems = canManageUsers
-    ? [{ to: '/users', icon: FiUsers, label: 'Users' }]
-    : [];
-
-  const roleLabel = ROLE_LABELS[userProfile?.role] || 'Employee';
   const initial = userProfile?.displayName?.charAt(0)?.toUpperCase() || 'U';
 
   return (
@@ -110,17 +101,6 @@ export default function Sidebar() {
               <NavItem key={item.to} {...item} onNavigate={closeMobile} />
             ))}
           </nav>
-
-          {adminItems.length > 0 && (
-            <>
-              <p className="sidebar-section-label">Admin</p>
-              <nav className="sidebar-nav">
-                {adminItems.map((item) => (
-                  <NavItem key={item.to} {...item} onNavigate={closeMobile} />
-                ))}
-              </nav>
-            </>
-          )}
         </div>
 
         <div className="sidebar-footer">
@@ -128,14 +108,7 @@ export default function Sidebar() {
             <span className="sidebar-user-avatar">{initial}</span>
             <div className="sidebar-user-details">
               <span className="sidebar-user-name">{userProfile?.displayName}</span>
-              <span className="sidebar-user-branch">
-                <FiMapPin aria-hidden="true" />
-                {getBranchName(userProfile?.branchId)}
-              </span>
-              <span className="sidebar-user-role">
-                <FiShield aria-hidden="true" />
-                {roleLabel}
-              </span>
+              <span className="sidebar-user-email">{userProfile?.email}</span>
             </div>
           </div>
 

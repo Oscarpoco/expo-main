@@ -9,7 +9,6 @@ import Dashboard from './components/dashboard/Dashboard';
 import TaskList from './components/tasks/TaskList';
 import ProjectList from './components/projects/ProjectList';
 import Reports from './components/reports/Reports';
-import UserManagement from './components/users/UserManagement';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
 function PublicRoute({ children }) {
@@ -52,14 +51,6 @@ export default function App() {
             <Route path="tasks" element={<TaskList />} />
             <Route path="projects" element={<ProjectList />} />
             <Route path="reports" element={<Reports />} />
-            <Route
-              path="users"
-              element={
-                <ProtectedRoute adminOnly>
-                  <UserManagement />
-                </ProtectedRoute>
-              }
-            />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

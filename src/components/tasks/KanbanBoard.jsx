@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FiMapPin,
-  FiUser,
   FiFolder,
   FiFlag,
   FiClock,
   FiActivity,
   FiCheckCircle,
 } from 'react-icons/fi';
-import { TASK_STATUSES, getBranchName, getPriorityLabel } from '../../constants';
+import { TASK_STATUSES, getPriorityLabel } from '../../constants';
 import './KanbanBoard.css';
 
 const COLUMN_ICONS = {
@@ -18,7 +16,7 @@ const COLUMN_ICONS = {
   completed: FiCheckCircle,
 };
 
-export default function KanbanBoard({ tasks, projects, users, onStatusChange, onEdit }) {
+export default function KanbanBoard({ tasks, projects, onStatusChange, onEdit }) {
   const [draggingId, setDraggingId] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
   const [celebrate, setCelebrate] = useState(false);
@@ -74,7 +72,7 @@ export default function KanbanBoard({ tasks, projects, users, onStatusChange, on
                 className="confetti-piece"
                 style={{
                   left: `${10 + Math.random() * 80}%`,
-                  background: ['#ec4899', '#f472b6', '#10b981', '#f59e0b', '#db2777'][i % 5],
+                  background: ['#2d6a4f', '#40916c', '#52b788', '#f59e0b', '#1b4332'][i % 5],
                 }}
                 initial={{ y: 0, opacity: 1, rotate: 0 }}
                 animate={{
@@ -120,7 +118,6 @@ export default function KanbanBoard({ tasks, projects, users, onStatusChange, on
                 <AnimatePresence mode="popLayout">
                   {columnTasks.map((task) => {
                     const project = projects.find((p) => p.id === task.projectId);
-                    const assignee = users.find((u) => u.id === task.assignedTo);
                     const isDragging = draggingId === task.id;
                     const TaskIcon = COLUMN_ICONS[task.status] || FiActivity;
 
@@ -154,10 +151,6 @@ export default function KanbanBoard({ tasks, projects, users, onStatusChange, on
                           )}
                         </div>
                         <h4>{task.title}</h4>
-                        <div className="kanban-card-meta">
-                          <span><FiMapPin /> {getBranchName(task.branchId)}</span>
-                          {assignee && <span><FiUser /> {assignee.displayName}</span>}
-                        </div>
                         {project && (
                           <span className="kanban-project"><FiFolder /> {project.name}</span>
                         )}

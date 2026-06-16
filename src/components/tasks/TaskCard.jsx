@@ -2,8 +2,6 @@ import { motion } from 'framer-motion';
 import {
   FiEdit2,
   FiTrash2,
-  FiMapPin,
-  FiUser,
   FiCalendar,
   FiFolder,
   FiClock,
@@ -12,7 +10,7 @@ import {
   FiFlag,
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
-import { getBranchName, getStatusLabel, getPriorityLabel, getStatusColor } from '../../constants';
+import { getStatusLabel, getPriorityLabel, getStatusColor } from '../../constants';
 import { deleteTask } from '../../hooks/useFirestore';
 import './TaskCard.css';
 
@@ -22,10 +20,9 @@ const STATUS_ICONS = {
   completed: FiCheckCircle,
 };
 
-export default function TaskCard({ task, projects, users, onEdit, delay = 0 }) {
-  const { user, isAdmin, isBranchAdmin } = useAuth();
+export default function TaskCard({ task, projects, onEdit, delay = 0 }) {
+  const { user } = useAuth();
   const project = projects.find((p) => p.id === task.projectId);
-  const assignee = users.find((u) => u.id === task.assignedTo);
   const StatusIcon = STATUS_ICONS[task.status] || FiActivity;
   const statusColor = getStatusColor(task.status);
 
@@ -35,7 +32,7 @@ export default function TaskCard({ task, projects, users, onEdit, delay = 0 }) {
     }
   }
 
-  const canEdit = isAdmin || isBranchAdmin || task.createdBy === user?.uid;
+  const canEdit = task.createdBy === user?.uid;
 
   return (
     <motion.div
@@ -70,9 +67,7 @@ export default function TaskCard({ task, projects, users, onEdit, delay = 0 }) {
       )}
 
       <div className="task-meta">
-        <span><FiMapPin /> {getBranchName(task.branchId)}</span>
         {project && <span><FiFolder /> {project.name}</span>}
-        {assignee && <span><FiUser /> {assignee.displayName}</span>}
         {task.dueDate && (
           <span><FiCalendar /> {new Date(task.dueDate).toLocaleDateString()}</span>
         )}
